@@ -112,7 +112,28 @@ public class DocumentPicker extends ReactContextBaseJavaModule implements Activi
         } else {
             map = metaDataFromContentResolver(uri);
         }
+        try{
+            InputStream inputStream = getCurrentActivity().getContentResolver().openInputStream(uri);
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
 
+            // this is storage overwritten on each iteration with bytes
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            // we need to know how may bytes were read to write them to the byteBuffer
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+
+            // and then we can return your byte array.
+            String strBase64 = Base64.encodeToString(byteBuffer.toByteArray(),Base64.DEFAULT);
+            Log.v("TEST1",strBase64);
+            map.putString("base64",strBase64);
+
+        }catch(Exception e) {
+            Log.v("TEST",e.getMessage());
+        }
         map.putString("uri", uri.toString());
 
         return map;
